@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruit Trio</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top, #fff8dc, #ffdca8 45%, #f5a96b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.game {
+    width: min(95vw, 650px);
+    text-align: center;
+    padding: 18px;
+}
+
+h1 {
+    font-size: 38px;
+    color: #ff7b00;
+    text-shadow: 2px 3px 0 white;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #765b43;
+    margin-bottom: 12px;
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.menu {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        #ffcf70,
+        #ff9b4a,
+        #ffca68
+    );
+    z-index: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.menu-box {
+    width: min(92vw, 520px);
+    background: rgba(255,255,255,.94);
+    border-radius: 30px;
+    padding: 30px 22px;
+    box-shadow: 0 15px 45px rgba(0,0,0,.25);
+    text-align: center;
+}
+
+.menu-box h1 {
+    font-size: 42px;
+    margin-bottom: 5px;
+}
+
+.menu-description {
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.levels {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.level {
+    border: none;
+    border-radius: 18px;
+    padding: 17px 10px;
+    background: linear-gradient(145deg, #fff, #f4e2ca);
+    box-shadow: 0 5px 0 #d7c2ab;
+    cursor: pointer;
+    transition: .15s;
+}
+
+.level:hover {
+    transform: translateY(-3px);
+}
+
+.level:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #d7c2ab;
+}
+
+.level.locked {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.level-number {
+    display: block;
+    font-size: 25px;
+    font-weight: bold;
+    color: #ff8500;
+}
+
+.level-name {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.level-info {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.level.locked .level-number {
+    color: #777;
+}
+
+.reset-progress {
+    margin-top: 20px;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   PLACAR
+===================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-bottom: 8px;
+}
+
+.stat {
+    background: rgba(255,255,255,.9);
+    border-radius: 15px;
+    padding: 8px 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+}
+
+.stat span {
+    display: block;
+    font-size: 10px;
+    color: #888;
+    font-weight: bold;
+}
+
+.stat strong {
+    font-size: 18px;
+}
+
+
+/* =====================================================
+   NOME DA FASE
+===================================================== */
+
+.phase-name {
+    background: rgba(255,255,255,.7);
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 7px;
+    color: #86592f;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   BANDEJA
+===================================================== */
+
+.tray-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #765b43;
+    margin: 5px 0;
+}
+
+.tray {
+    width: 100%;
+    min-height: 72px;
+    background: rgba(255,255,255,.75);
+    border: 3px solid rgba(255,255,255,.9);
+    border-radius: 18px;
+    padding: 7px;
+    display: grid;
+    gap: 6px;
+    box-shadow:
+        inset 0 2px 8px rgba(0,0,0,.08),
+        0 5px 12px rgba(0,0,0,.12);
+    margin-bottom: 12px;
+}
+
+.tray.six {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.tray.five {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.tray-slot {
+    min-height: 52px;
+    border-radius: 12px;
+    background: rgba(220,190,160,.22);
+    border: 2px dashed rgba(120,90,60,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tray-tile {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 29px;
+    box-shadow: 0 4px 7px rgba(0,0,0,.15);
+    animation: trayEnter .18s ease-out;
+}
+
+@keyframes trayEnter {
+    from {
+        transform: scale(.4);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+/* =====================================================
+   ANIMAÇÃO DO TRIO
+===================================================== */
+
+.tray-tile.matching {
+    animation: trioExplode .43s ease-in-out forwards;
+}
+
+@keyframes trioExplode {
+
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.35) rotate(-8deg);
+        filter: brightness(1.7);
+    }
+
+    55% {
+        transform: scale(1.55) rotate(8deg);
+        filter: brightness(2);
+
+        box-shadow:
+            0 0 10px white,
+            0 0 25px #ffd700,
+            0 0 40px #ff9800;
+    }
+
+    100% {
+        transform: scale(0) rotate(30deg);
+        opacity: 0;
+    }
+}
+
+
+/* =====================================================
+   MAPAS
+   SOMENTE O TABULEIRO MUDA
+===================================================== */
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+
+    box-shadow:
+        0 7px 15px rgba(0,0,0,.15),
+        inset 0 2px 5px rgba(255,255,255,.8);
+
+    transition:
+        background .5s ease,
+        box-shadow .5s ease;
+}
+
+
+/* MAPA 1 — CAMPO */
+
+.board.map-1 {
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(255,255,255,.5) 2px,
+            transparent 3px
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(255,255,255,.4) 2px,
+            transparent 3px
+        ),
+        linear-gradient(
+            135deg,
+            #dff5b5,
+            #a8d878
+        );
+}
+
+
+/* MAPA 2 — FLORESTA */
+
+.board.map-2 {
+    background:
+        radial-gradient(
+            circle,
+            rgba(52,120,45,.22) 3px,
+            transparent 4px
+        ) 0 0 / 25px 25px,
+        linear-gradient(
+            135deg,
+            #bde7a5,
+            #72bd78
+        );
+
+    box-shadow:
+        0 7px 15px rgba(0,0,0,.2),
+        inset 0 0 25px rgba(35,110,45,.25);
+}
+
+
+/* MAPA 3 — GELO */
+
+.board.map-3 {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.55) 25%,
+            transparent 25%
+        ) 0 0 / 30px 30px,
+        linear-gradient(
+            315deg,
+            rgba(255,255,255,.35) 25%,
+            transparent 25%
+        ) 0 0 / 30px 30px,
+        linear-gradient(
+            135deg,
+            #bceeff,
+            #70cce8
+        );
+
+    box-shadow:
+        0 7px 15px rgba(0,0,0,.18),
+        inset 0 0 25px rgba(255,255,255,.6);
+}
+
+
+/* MAPA 4 — DESERTO */
+
+.board.map-4 {
+    background:
+        radial-gradient(
+            circle at 20% 30%,
+            rgba(190,130,55,.18) 2px,
+            transparent 3px
+        ) 0 0 / 22px 22px,
+        linear-gradient(
+            135deg,
+            #f8d58a,
+            #d99a4e
+        );
+
+    box-shadow:
+        0 7px 15px rgba(0,0,0,.22),
+        inset 0 0 25px rgba(180,100,25,.18);
+}
+
+
+/* MAPA 5 — VULCÃO */
+
+.board.map-5 {
+    background:
+        radial-gradient(
+            circle at 25% 25%,
+            rgba(255,200,60,.35) 2px,
+            transparent 4px
+        ),
+        radial-gradient(
+            circle at 75% 70%,
+            rgba(255,90,30,.28) 3px,
+            transparent 5px
+        ),
+        linear-gradient(
+            135deg,
+            #5b3030,
+            #9d4934,
+            #3d2424
+        );
+
+    box-shadow:
+        0 7px 15px rgba(0,0,0,.35),
+        inset 0 0 30px rgba(255,70,20,.2);
+}
+
+
+/* =====================================================
+   FRUTAS
+===================================================== */
+
+.tile {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 15px;
+
+    background: linear-gradient(
+        145deg,
+        #ffffff,
+        #f5e8d7
+    );
+
+    cursor: pointer;
+
+    font-size: clamp(
+        25px,
+        6vw,
+        42px
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 5px 0 #d7c2ab,
+        0 7px 12px rgba(0,0,0,.12);
+
+    transition:
+        transform .12s,
+        box-shadow .12s,
+        filter .12s;
+
+    position: relative;
+    user-select: none;
+}
+
+.tile:hover {
+    transform: translateY(-3px) scale(1.03);
+}
+
+.tile.used {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   FRUTA TRANCADA
+===================================================== */
+
+.tile.locked-fruit {
+    cursor: not-allowed;
+
+    background:
+        linear-gradient(
+            145deg,
+            #bdbdbd,
+            #858585
+        );
+
+    box-shadow:
+        0 5px 0 #666,
+        0 7px 12px rgba(0,0,0,.15);
+}
+
+.tile.locked-fruit::after {
+    content: "🔒";
+    position: absolute;
+    font-size: 20px;
+    bottom: 4px;
+    right: 5px;
+}
+
+.tile.locked-fruit .fruit {
+    filter: grayscale(1);
+    opacity: .45;
+}
+
+
+/* =====================================================
+   FRUTA CONGELADA
+===================================================== */
+
+.tile.frozen {
+    background:
+        linear-gradient(
+            145deg,
+            #dff7ff,
+            #9bd8ee
+        );
+}
+
+.tile.frozen::after {
+    content: "❄️";
+    position: absolute;
+    font-size: 18px;
+    top: 3px;
+    right: 4px;
+}
+
+
+/* =====================================================
+   BOTÕES
+===================================================== */
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.action {
+    border: none;
+    border-radius: 13px;
+    padding: 9px 14px;
+    background: white;
+    color: #704b2b;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #d7c2ab;
+}
+
+.action:hover {
+    transform: translateY(-2px);
+}
+
+.action:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   MENSAGEM
+===================================================== */
+
+.message {
+    min-height: 25px;
+    margin-top: 7px;
+    font-weight: bold;
+    color: #8b572a;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    z-index: 400;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: min(90vw, 400px);
+
+    background: white;
+
+    border-radius: 25px;
+
+    padding: 30px 20px;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.3);
+
+    text-align: center;
+
+    animation: modalIn .25s ease-out;
+}
+
+@keyframes modalIn {
+
+    from {
+        transform: scale(.7);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.modal p {
+    color: #777;
+    margin-bottom: 18px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.modal button {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 13px;
+    background: #ff8a00;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   +30
+===================================================== */
+
+.points-pop {
+    position: fixed;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    color: #ff8500;
+
+    pointer-events: none;
+
+    z-index: 600;
+
+    animation:
+        pointsUp .8s ease-out forwards;
+
+    text-shadow:
+        2px 2px white;
+}
+
+@keyframes pointsUp {
+
+    0% {
+        transform:
+            translate(-50%, 0)
+            scale(.7);
+
+        opacity: 0;
+    }
+
+    20% {
+        transform:
+            translate(-50%, -10px)
+            scale(1.2);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -75px)
+            scale(1);
+
+        opacity: 0;
+    }
+}
+
+
+
+/* =====================================================
+   TEMAS COMPLETOS DAS FASES
+   Cada fase possui identidade visual própria.
+   As frutas continuam iguais.
+===================================================== */
+
+body.theme-1 {
+    background: linear-gradient(135deg, #efffd7, #bde58b 50%, #78bd63);
+}
+body.theme-2 {
+    background: linear-gradient(135deg, #d9f2c5, #75a96a 50%, #315f3c);
+}
+body.theme-3 {
+    background: linear-gradient(135deg, #eaffff, #a9e7f4 50%, #6aaacb);
+}
+body.theme-4 {
+    background: linear-gradient(135deg, #fff1bd, #e7bd6a 50%, #b96e35);
+}
+body.theme-5 {
+    background: linear-gradient(135deg, #6b3932, #b55236 50%, #261719);
+}
+
+/* Cartões do menu */
+.level.level-theme-1 {
+    background: linear-gradient(145deg, #f4ffe9, #bde58c);
+    box-shadow: 0 5px 0 #78b65a;
+}
+.level.level-theme-2 {
+    background: linear-gradient(145deg, #e7f7dc, #8bc486);
+    box-shadow: 0 5px 0 #4d8a54;
+}
+.level.level-theme-3 {
+    background: linear-gradient(145deg, #f2ffff, #b7eaf5);
+    box-shadow: 0 5px 0 #70b9cf;
+}
+.level.level-theme-4 {
+    background: linear-gradient(145deg, #fff7d9, #edc77b);
+    box-shadow: 0 5px 0 #c18a42;
+}
+.level.level-theme-5 {
+    background: linear-gradient(145deg, #ffe0c9, #b94d38);
+    color: #fff;
+    box-shadow: 0 5px 0 #642820;
+}
+.level.level-theme-5 .level-info,
+.level.level-theme-5 .level-name {
+    color: #fff;
+}
+.level.level-theme-5 .level-number {
+    color: #ffe16a;
+}
+
+/* Cabeçalho, placar e bandeja mudam com a fase */
+body.theme-1 h1 { color:#4c9a35; }
+body.theme-2 h1 { color:#27613a; }
+body.theme-3 h1 { color:#318eaf; }
+body.theme-4 h1 { color:#bd7228; }
+body.theme-5 h1 { color:#ff633b; text-shadow:2px 3px 0 #ffe3a8; }
+
+body.theme-1 .stat,
+body.theme-1 .tray,
+body.theme-1 .phase-name {
+    border-color:#c5e6a5;
+}
+body.theme-2 .stat,
+body.theme-2 .tray,
+body.theme-2 .phase-name {
+    border-color:#91c08d;
+}
+body.theme-3 .stat,
+body.theme-3 .tray,
+body.theme-3 .phase-name {
+    border-color:#a8ddea;
+}
+body.theme-4 .stat,
+body.theme-4 .tray,
+body.theme-4 .phase-name {
+    border-color:#e1b86f;
+}
+body.theme-5 .stat,
+body.theme-5 .tray,
+body.theme-5 .phase-name {
+    border-color:#d06a4e;
+}
+
+/* O próprio tabuleiro ganha elementos decorativos */
+.board {
+    position: relative;
+    overflow: hidden;
+}
+.board::before,
+.board::after {
+    position:absolute;
+    pointer-events:none;
+    z-index:0;
+}
+.board::before {
+    font-size:42px;
+    opacity:.24;
+    left:8px;
+    top:3px;
+}
+.board::after {
+    font-size:38px;
+    opacity:.22;
+    right:8px;
+    bottom:2px;
+}
+.board > * {
+    z-index:1;
+}
+
+/* Campo */
+.board.map-1::before { content:"🌼"; }
+.board.map-1::after  { content:"🌿"; }
+
+/* Floresta */
+.board.map-2::before { content:"🌲"; }
+.board.map-2::after  { content:"🍃"; }
+
+/* Gelo */
+.board.map-3::before { content:"❄️"; }
+.board.map-3::after  { content:"💎"; }
+
+/* Deserto */
+.board.map-4::before { content:"🌵"; }
+.board.map-4::after  { content:"🪨"; }
+
+/* Vulcão */
+.board.map-5::before { content:"🌋"; }
+.board.map-5::after  { content:"🔥"; }
+
+/* Os blocos também acompanham o ambiente */
+body.theme-1 .tile {
+    background:linear-gradient(145deg,#ffffff,#eff9df);
+    box-shadow:0 5px 0 #a7c986,0 7px 12px rgba(0,0,0,.12);
+}
+body.theme-2 .tile {
+    background:linear-gradient(145deg,#f8fff4,#d8ecd0);
+    box-shadow:0 5px 0 #82a77c,0 7px 12px rgba(0,0,0,.15);
+}
+body.theme-3 .tile {
+    background:linear-gradient(145deg,#ffffff,#def7ff);
+    box-shadow:0 5px 0 #8bc9dc,0 7px 12px rgba(0,0,0,.12);
+}
+body.theme-4 .tile {
+    background:linear-gradient(145deg,#fffdf0,#f5dfae);
+    box-shadow:0 5px 0 #c99c55,0 7px 12px rgba(0,0,0,.14);
+}
+body.theme-5 .tile {
+    background:linear-gradient(145deg,#fff1df,#d99a78);
+    box-shadow:0 5px 0 #8c4938,0 7px 12px rgba(0,0,0,.22);
+}
+
+/* Obstáculos também recebem a identidade da fase */
+body.theme-1 .tile.locked-fruit { background:linear-gradient(145deg,#9fc08c,#607d55); }
+body.theme-2 .tile.locked-fruit { background:linear-gradient(145deg,#6d8e70,#304b38); }
+body.theme-3 .tile.locked-fruit { background:linear-gradient(145deg,#a9d8e5,#668fa0); }
+body.theme-4 .tile.locked-fruit { background:linear-gradient(145deg,#c49b60,#815b31); }
+body.theme-5 .tile.locked-fruit { background:linear-gradient(145deg,#76514b,#382524); }
+
+body.theme-5 .tray {
+    background:rgba(255,225,205,.88);
+}
+body.theme-3 .tray {
+    background:rgba(240,253,255,.88);
+}
+
+/* =====================================================
+   FIM DOS TEMAS
+===================================================== */
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media(max-width:500px) {
+
+    .game {
+        padding: 9px;
+    }
+
+    h1 {
+        font-size: 29px;
+    }
+
+    .stats {
+        gap: 4px;
+    }
+
+    .stat strong {
+        font-size: 15px;
+    }
+
+    .board {
+        gap: 5px;
+        padding: 7px;
+    }
+
+    .tile {
+        border-radius: 10px;
+        box-shadow:
+            0 3px 0 #d7c2ab;
+    }
+
+    .tray {
+        gap: 4px;
+        padding: 5px;
+    }
+
+    .tray-slot {
+        min-height: 44px;
+    }
+
+    .tray-tile {
+        width: 38px;
+        height: 38px;
+        font-size: 24px;
+    }
+
+    .levels {
+        gap: 8px;
+    }
+
+    .level {
+        padding: 13px 6px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     MENU
+===================================================== -->
+
+<div class="menu" id="menu">
+
+    <div class="menu-box">
+
+        <h1>🍓 Fruit Trio</h1>
+
+        <p class="menu-description">
+            Escolha uma fase e supere o desafio!
+        </p>
+
+        <div class="levels">
+
+            <button class="level level-theme-1"
+                    onclick="startLevel(1)">
+
+                <span class="level-number">
+                    1
+                </span>
+
+                <span class="level-name">
+                    🌳 Começo
+                </span>
+
+                <span class="level-info">
+                    Campo de frutas
+                </span>
+
+            </button>
+
+
+            <button class="level locked level-theme-2"
+                    id="level2"
+                    onclick="startLevel(2)">
+
+                <span class="level-number">
+                    🔒 2
+                </span>
+
+                <span class="level-name">
+                    🌲 Floresta
+                </span>
+
+                <span class="level-info">
+                    Frutas trancadas
+                </span>
+
+            </button>
+
+
+            <button class="level locked level-theme-3"
+                    id="level3"
+                    onclick="startLevel(3)">
+
+                <span class="level-number">
+                    🔒 3
+                </span>
+
+                <span class="level-name">
+                    ❄️ Reino de Gelo
+                </span>
+
+                <span class="level-info">
+                    Frutas congeladas
+                </span>
+
+            </button>
+
+
+            <button class="level locked level-theme-4"
+                    id="level4"
+                    onclick="startLevel(4)">
+
+                <span class="level-number">
+                    🔒 4
+                </span>
+
+                <span class="level-name">
+                    🏜️ Deserto
+                </span>
+
+                <span class="level-info">
+                    Bandeja menor
+                </span>
+
+            </button>
+
+
+            <button class="level locked level-theme-5"
+                    id="level5"
+                    onclick="startLevel(5)">
+
+                <span class="level-number">
+                    🔒 5
+                </span>
+
+                <span class="level-name">
+                    🌋 Vulcão
+                </span>
+
+                <span class="level-info">
+                    Desafio final
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <button class="reset-progress"
+                onclick="resetProgress()">
+
+            Resetar progresso
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     JOGO
+===================================================== -->
+
+<div class="game">
+
+    <h1>🍓 Fruit Trio</h1>
+
+    <div class="subtitle">
+        Forme grupos de 3 frutas iguais!
+    </div>
+
+    <div class="phase-name"
+         id="phaseName">
+
+        Fase 1
+
+    </div>
+
+
+    <!-- PLACAR -->
+
+    <div class="stats">
+
+        <div class="stat">
+            <span>PONTOS</span>
+            <strong id="score">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>MELHOR</span>
+            <strong id="best">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>TEMPO</span>
+            <strong id="time">60</strong>
+        </div>
+
+        <div class="stat">
+            <span>FASE</span>
+            <strong id="phaseNumber">1</strong>
+        </div>
+
+    </div>
+
+
+    <!-- BANDEJA -->
+
+    <div class="tray-title">
+        🧺 Bandeja
+    </div>
+
+    <div class="tray six"
+         id="tray">
+    </div>
+
+
+    <!-- MAPA / TABULEIRO -->
+
+    <div class="board map-1"
+         id="board">
+    </div>
+
+
+    <div class="buttons">
+
+        <button class="action"
+                onclick="shuffleBoard()">
+
+            🔀 Embaralhar
+
+        </button>
+
+
+        <button class="action"
+                id="undoBtn"
+                onclick="undoMove()">
+
+            ↩️ Desfazer
+
+        </button>
+
+
+        <button class="action"
+                onclick="openMenu()">
+
+            🗺️ Fases
+
+        </button>
+
+    </div>
+
+
+    <div class="message"
+         id="message">
+
+        Boa sorte! 🍀
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div class="overlay"
+     id="overlay">
+
+    <div class="modal">
+
+        <h2 id="modalTitle">
+            Fim de jogo
+        </h2>
+
+        <p id="modalText"></p>
+
+
+        <div class="modal-buttons">
+
+            <button onclick="restartCurrentLevel()">
+                🔄 Jogar novamente
+            </button>
+
+
+            <button onclick="nextLevel()"
+                    id="nextButton"
+                    style="display:none;">
+
+                ➡️ Próxima fase
+
+            </button>
+
+
+            <button onclick="openMenu()">
+                🗺️ Fases
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   FRUTAS
+===================================================== */
+
+const fruits = [
+    "🍎",
+    "🍊",
+    "🍋",
+    "🍇",
+    "🍉",
+    "🍓",
+    "🍒",
+    "🥝",
+    "🍍",
+    "🥭",
+    "🍑",
+    "🍐"
+];
+
+
+/* =====================================================
+   CONFIGURAÇÕES
+===================================================== */
+
+const BOARD_SIZE = 6;
+
+const DEFAULT_TRAY = 6;
+
+
+/* =====================================================
+   FASES
+===================================================== */
+
+const levels = {
+
+    1: {
+        name: "🌳 Campo",
+        description: "Modo clássico",
+        time: 60,
+        tray: 6,
+        locked: false,
+        frozen: false
+    },
+
+    2: {
+        name: "🌲 Floresta",
+        description: "Frutas trancadas",
+        time: 60,
+        tray: 6,
+        locked: true,
+        frozen: false
+    },
+
+    3: {
+        name: "❄️ Reino de Gelo",
+        description: "Frutas congeladas",
+        time: 60,
+        tray: 6,
+        locked: true,
+        frozen: true
+    },
+
+    4: {
+        name: "🏜️ Deserto",
+        description: "Bandeja com apenas 5 espaços",
+        time: 60,
+        tray: 5,
+        locked: true,
+        frozen: false
+    },
+
+    5: {
+        name: "🌋 Vulcão",
+        description: "Tempo + obstáculos",
+        time: 45,
+        tray: 5,
+        locked: true,
+        frozen: true
+    }
+
+};
+
+
+/* =====================================================
+   VARIÁVEIS
+===================================================== */
+
+let board = [];
+
+let tray = [];
+
+let score = 0;
+
+let timeLeft = 60;
+
+let currentLevel = 1;
+
+let gameOver = false;
+
+let timer = null;
+
+let history = [];
+
+
+/*
+   IMPORTANTE:
+
+   Agora os trios que estão em animação
+   ficam registrados aqui.
+
+   Isso permite continuar jogando
+   enquanto outro trio desaparece.
+*/
+
+let pendingTriples = new Set();
+
+
+/*
+   Obstáculos.
+*/
+
+let lockedSequence = [];
+
+let currentLockedIndex = 0;
+
+
+/*
+   Progresso.
+*/
+
+let unlockedLevel =
+    Number(
+        localStorage.getItem(
+            "fruitTrioLevel"
+        )
+    ) || 1;
+
+
+/*
+   Melhor pontuação.
+*/
+
+let bestScore =
+    Number(
+        localStorage.getItem(
+            "fruitTrioBest"
+        )
+    ) || 0;
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const boardElement =
+    document.getElementById("board");
+
+const trayElement =
+    document.getElementById("tray");
+
+const scoreElement =
+    document.getElementById("score");
+
+const bestElement =
+    document.getElementById("best");
+
+const timeElement =
+    document.getElementById("time");
+
+const phaseName =
+    document.getElementById("phaseName");
+
+const phaseNumber =
+    document.getElementById("phaseNumber");
+
+const messageElement =
+    document.getElementById("message");
+
+const overlay =
+    document.getElementById("overlay");
+
+const modalTitle =
+    document.getElementById("modalTitle");
+
+const modalText =
+    document.getElementById("modalText");
+
+const nextButton =
+    document.getElementById("nextButton");
+
+const undoBtn =
+    document.getElementById("undoBtn");
+
+const menu =
+    document.getElementById("menu");
+
+
+/* =====================================================
+   EMBARALHAR
+===================================================== */
+
+function shuffle(array) {
+
+    for (
+        let i = array.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
+    }
+
+    return array;
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+function updateLevelMenu() {
+
+    for (
+        let i = 1;
+        i <= 5;
+        i++
+    ) {
+
+        const button =
+            document.getElementById(
+                "level" + i
+            );
+
+        if (!button)
+            continue;
+
+
+        const number =
+            button.querySelector(
+                ".level-number"
+            );
+
+
+        if (
+            i <= unlockedLevel
+        ) {
+
+            button.classList.remove(
+                "locked"
+            );
+
+            number.textContent =
+                i;
+
+        } else {
+
+            button.classList.add(
+                "locked"
+            );
+
+            number.textContent =
+                "🔒 " + i;
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   INICIAR FASE
+===================================================== */
+
+function startLevel(level) {
+
+    if (
+        level > unlockedLevel
+    ) {
+
+        return;
+
+    }
+
+
+    currentLevel = level;
+
+    const settings =
+        levels[level];
+
+
+    clearInterval(timer);
+
+
+    gameOver = false;
+
+    score = 0;
+
+    tray = [];
+
+    history = [];
+
+    pendingTriples.clear();
+
+    timeLeft =
+        settings.time;
+
+
+    /*
+       Cria exatamente:
+
+       12 frutas × 3 = 36
+    */
+
+    let pieces = [];
+
+
+    fruits.forEach(fruit => {
+
+        for (
+            let i = 0;
+            i < 3;
+            i++
+        ) {
+
+            pieces.push(fruit);
+
+        }
+
+    });
+
+
+    shuffle(pieces);
+
+
+    board =
+        pieces.map(
+            (fruit, index) => ({
+
+                id: index,
+
+                fruit: fruit,
+
+                active: true,
+
+                locked: false,
+
+                frozen: false
+
+            })
+        );
+
+
+    setupObstacles();
+
+
+    /*
+       Aplica mapa da fase.
+    */
+
+    setMap(currentLevel);
+    setTheme(currentLevel);
+
+
+    menu.style.display =
+        "none";
+
+    overlay.classList.remove(
+        "show"
+    );
+
+
+    phaseName.textContent =
+        `Fase ${level} — ${settings.name}`;
+
+
+    phaseNumber.textContent =
+        level;
+
+
+    updateScore();
+
+    updateTime();
+
+    renderBoard();
+
+    renderTray();
+
+    updateUndoButton();
+
+
+    messageElement.textContent =
+        settings.description;
+
+
+    startTimer();
+
+}
+
+
+/* =====================================================
+   MAPAS
+===================================================== */
+
+function setMap(level) {
+
+    boardElement.classList.remove(
+        "map-1",
+        "map-2",
+        "map-3",
+        "map-4",
+        "map-5"
+    );
+
+    boardElement.classList.add(
+        "map-" + level
+    );
+
+}
+
+function setTheme(level) {
+    document.body.classList.remove(
+        "theme-1",
+        "theme-2",
+        "theme-3",
+        "theme-4",
+        "theme-5"
+    );
+
+    document.body.classList.add("theme-" + level);
+}
+
+
+
+/* =====================================================
+   OBSTÁCULOS
+===================================================== */
+
+function setupObstacles() {
+
+    const settings =
+        levels[currentLevel];
+
+
+    lockedSequence = [];
+
+    currentLockedIndex = 0;
+
+
+    /*
+       FRUTAS TRANCADAS
+    */
+
+    if (settings.locked) {
+
+        const positions =
+            shuffle(
+                [...Array(
+                    board.length
+                ).keys()]
+            ).slice(0, 4);
+
+
+        lockedSequence =
+            positions;
+
+
+        positions.forEach(
+            (position, index) => {
+
+                board[position]
+                    .obstacleIndex =
+                    index;
+
+
+                board[position]
+                    .locked =
+                    index === 0;
+
+            }
+        );
+
+    }
+
+
+    /*
+       FRUTAS CONGELADAS
+    */
+
+    if (settings.frozen) {
+
+        const positions =
+            shuffle(
+                [...Array(
+                    board.length
+                ).keys()]
+            ).slice(0, 5);
+
+
+        positions.forEach(
+            position => {
+
+                if (
+                    !board[position].locked
+                ) {
+
+                    board[position].frozen =
+                        true;
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDERIZAR TABULEIRO
+===================================================== */
+
+function renderBoard() {
+
+    boardElement.innerHTML = "";
+
+
+    board.forEach(
+        (tile, index) => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.className =
+                "tile";
+
+
+            if (!tile.active) {
+
+                button.classList.add(
+                    "used"
+                );
+
+            }
+
+
+            if (tile.locked) {
+
+                button.classList.add(
+                    "locked-fruit"
+                );
+
+            }
+
+
+            if (tile.frozen) {
+
+                button.classList.add(
+                    "frozen"
+                );
+
+            }
+
+
+            if (tile.active) {
+
+                const fruit =
+                    document.createElement(
+                        "span"
+                    );
+
+                fruit.className =
+                    "fruit";
+
+                fruit.textContent =
+                    tile.fruit;
+
+                button.appendChild(
+                    fruit
+                );
+
+            }
+
+
+            button.onclick =
+                () => selectTile(index);
+
+
+            boardElement.appendChild(
+                button
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   BANDEJA
+===================================================== */
+
+function renderTray(
+    matchingIndexes = []
+) {
+
+    const settings =
+        levels[currentLevel];
+
+
+    trayElement.innerHTML = "";
+
+
+    trayElement.className =
+        settings.tray === 5
+            ? "tray five"
+            : "tray six";
+
+
+    for (
+        let i = 0;
+        i < settings.tray;
+        i++
+    ) {
+
+        const slot =
+            document.createElement(
+                "div"
+            );
+
+
+        slot.className =
+            "tray-slot";
+
+
+        if (tray[i]) {
+
+            const tile =
+                document.createElement(
+                    "div"
+                );
+
+
+            tile.className =
+                "tray-tile";
+
+
+            /*
+               Se essa fruta estiver
+               formando um trio,
+               recebe a animação.
+            */
+
+            if (
+                matchingIndexes.includes(i)
+            ) {
+
+                tile.classList.add(
+                    "matching"
+                );
+
+            }
+
+
+            tile.textContent =
+                tray[i];
+
+
+            slot.appendChild(
+                tile
+            );
+
+        }
+
+
+        trayElement.appendChild(
+            slot
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SELECIONAR FRUTA
+===================================================== */
+
+function selectTile(index) {
+
+    /*
+       NÃO usamos mais "resolving"
+       para bloquear o jogo.
+
+       Portanto é possível clicar
+       durante a animação.
+    */
+
+    if (gameOver)
+        return;
+
+
+    const tile =
+        board[index];
+
+
+    if (
+        !tile ||
+        !tile.active
+    )
+        return;
+
+
+    /*
+       FRUTA TRANCADA
+    */
+
+    if (tile.locked) {
+
+        messageElement.textContent =
+            "🔒 Essa fruta está trancada!";
+
+
+        shakeTile(index);
+
+        return;
+
+    }
+
+
+    /*
+       FRUTA CONGELADA
+    */
+
+    if (tile.frozen) {
+
+        messageElement.textContent =
+            "❄️ Essa fruta está congelada!";
+
+
+        shakeTile(index);
+
+        return;
+
+    }
+
+
+    /*
+       Salva para DESFAZER.
+
+       Não permite desfazer enquanto
+       existem animações acontecendo.
+    */
+
+    if (
+        pendingTriples.size === 0
+    ) {
+
+        history.push({
+
+            board:
+                board.map(
+                    t => ({
+                        ...t
+                    })
+                ),
+
+            tray:
+                [...tray],
+
+            score:
+                score
+
+        });
+
+    }
+
+
+    /*
+       Coloca a fruta na bandeja.
+    */
+
+    tile.active = false;
+
+    tray.push(
+        tile.fruit
+    );
+
+
+    renderBoard();
+
+    renderTray();
+
+
+    /*
+       Procura novos trios.
+    */
+
+    resolveTriples();
+
+
+    /*
+       Verifica se a bandeja realmente
+       ficou cheia.
+
+       Se houver um trio em animação,
+       esperamos ele desaparecer.
+    */
+
+    checkTrayOverflow();
+
+
+    updateUndoButton();
+
+}
+
+
+/* =====================================================
+   PROCURAR TRIOS
+===================================================== */
+
+function resolveTriples() {
+
+    const counts = {};
+
+
+    tray.forEach(
+        fruit => {
+
+            counts[fruit] =
+                (counts[fruit] || 0) + 1;
+
+        }
+    );
+
+
+    /*
+       Pode existir mais de um trio
+       esperando ao mesmo tempo.
+    */
+
+    Object.keys(counts).forEach(
+        fruit => {
+
+            if (
+                counts[fruit] >= 3 &&
+                !pendingTriples.has(fruit)
+            ) {
+
+                animateTriple(fruit);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ANIMAR UM TRIO
+===================================================== */
+
+function animateTriple(fruit) {
+
+    /*
+       Marca esse tipo de fruta
+       como estando em animação.
+    */
+
+    pendingTriples.add(fruit);
+
+
+    /*
+       Encontra as posições atuais
+       das 3 frutas.
+    */
+
+    const indexes = [];
+
+
+    tray.forEach(
+        (item, index) => {
+
+            if (
+                item === fruit &&
+                indexes.length < 3
+            ) {
+
+                indexes.push(index);
+
+            }
+
+        }
+    );
+
+
+    /*
+       Mostra a animação imediatamente.
+    */
+
+    renderTray(indexes);
+
+
+    /*
+       Depois de 430ms elas somem.
+    */
+
+    setTimeout(
+        () => {
+
+            let removed = 0;
+
+
+            tray =
+                tray.filter(
+                    item => {
+
+                        if (
+                            item === fruit &&
+                            removed < 3
+                        ) {
+
+                            removed++;
+
+                            return false;
+
+                        }
+
+                        return true;
+
+                    }
+                );
+
+
+            /*
+               Pontos.
+            */
+
+            score += 30;
+
+
+            if (
+                score > bestScore
+            ) {
+
+                bestScore =
+                    score;
+
+
+                localStorage.setItem(
+                    "fruitTrioBest",
+                    bestScore
+                );
+
+            }
+
+
+            updateScore();
+
+
+            showPoints();
+
+
+            /*
+               Obstáculos.
+            */
+
+            unlockNextObstacle();
+
+            unlockFrozen();
+
+
+            /*
+               Esse trio terminou.
+            */
+
+            pendingTriples.delete(
+                fruit
+            );
+
+
+            renderBoard();
+
+            renderTray();
+
+
+            /*
+               Procura novos trios.
+
+               Isso é importante porque
+               o jogador pode ter formado
+               outro trio durante a animação.
+            */
+
+            resolveTriples();
+
+
+            /*
+               Agora sim verifica
+               se perdeu ou venceu.
+            */
+
+            checkTrayOverflow();
+
+            checkWin();
+
+
+            updateUndoButton();
+
+
+        },
+        430
+    );
+
+}
+
+
+/* =====================================================
+   BANDEJA CHEIA
+===================================================== */
+
+function checkTrayOverflow() {
+
+    const settings =
+        levels[currentLevel];
+
+
+    /*
+       Se existe trio em animação,
+       ainda não podemos considerar
+       derrota.
+    */
+
+    if (
+        pendingTriples.size > 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        tray.length >=
+        settings.tray
+    ) {
+
+        loseGame(
+            "🧺 A bandeja ficou cheia!"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DESBLOQUEAR FRUTAS
+===================================================== */
+
+function unlockNextObstacle() {
+
+    const settings =
+        levels[currentLevel];
+
+
+    if (!settings.locked)
+        return;
+
+
+    const currentPosition =
+        lockedSequence[
+            currentLockedIndex
+        ];
+
+
+    if (
+        currentPosition !== undefined
+    ) {
+
+        board[currentPosition]
+            .locked = false;
+
+
+        board[currentPosition]
+            .frozen = false;
+
+    }
+
+
+    currentLockedIndex++;
+
+
+    /*
+       Tranca a próxima.
+
+       Assim temos sempre
+       somente uma fruta trancada
+       por vez.
+    */
+
+    if (
+        currentLockedIndex <
+        lockedSequence.length
+    ) {
+
+        const nextPosition =
+            lockedSequence[
+                currentLockedIndex
+            ];
+
+
+        board[nextPosition]
+            .locked = true;
+
+
+        messageElement.textContent =
+            "🔓 Uma fruta foi liberada! Outra foi trancada! 🔒";
+
+    } else {
+
+        messageElement.textContent =
+            "🎉 Todos os obstáculos foram liberados!";
+
+    }
+
+}
+
+
+/* =====================================================
+   DESCONGELAR
+===================================================== */
+
+function unlockFrozen() {
+
+    const settings =
+        levels[currentLevel];
+
+
+    if (!settings.frozen)
+        return;
+
+
+    const frozen =
+        board.find(
+            tile =>
+                tile.active &&
+                tile.frozen &&
+                !tile.locked
+        );
+
+
+    if (frozen) {
+
+        frozen.frozen = false;
+
+    }
+
+}
+
+
+/* =====================================================
+   ANIMAÇÃO +30
+===================================================== */
+
+function showPoints() {
+
+    const points =
+        document.createElement(
+            "div"
+        );
+
+
+    points.className =
+        "points-pop";
+
+
+    points.textContent =
+        "+30";
+
+
+    points.style.left =
+        "50%";
+
+
+    points.style.top =
+        "45%";
+
+
+    document.body.appendChild(
+        points
+    );
+
+
+    setTimeout(
+        () => {
+
+            points.remove();
+
+        },
+        800
+    );
+
+}
+
+
+/* =====================================================
+   ANIMAÇÃO DE BLOQUEIO
+===================================================== */
+
+function shakeTile(index) {
+
+    const tile =
+        boardElement
+            .children[index];
+
+
+    if (!tile)
+        return;
+
+
+    tile.animate(
+        [
+            {
+                transform:
+                    "translateX(0)"
+            },
+
+            {
+                transform:
+                    "translateX(-7px)"
+            },
+
+            {
+                transform:
+                    "translateX(7px)"
+            },
+
+            {
+                transform:
+                    "translateX(-5px)"
+            },
+
+            {
+                transform:
+                    "translateX(0)"
+            }
+        ],
+        {
+            duration: 260
+        }
+    );
+
+}
+
+
+/* =====================================================
+   VITÓRIA
+===================================================== */
+
+function checkWin() {
+
+    if (
+        pendingTriples.size > 0
+    )
+        return;
+
+
+    const remaining =
+        board.filter(
+            tile => tile.active
+        ).length;
+
+
+    if (
+        remaining === 0 &&
+        tray.length === 0
+    ) {
+
+        winGame();
+
+    }
+
+}
+
+
+/* =====================================================
+   GANHOU
+===================================================== */
+
+function winGame() {
+
+    if (gameOver)
+        return;
+
+
+    gameOver = true;
+
+
+    clearInterval(timer);
+
+
+    if (
+        currentLevel === unlockedLevel &&
+        unlockedLevel < 5
+    ) {
+
+        unlockedLevel++;
+
+
+        localStorage.setItem(
+            "fruitTrioLevel",
+            unlockedLevel
+        );
+
+    }
+
+
+    modalTitle.textContent =
+        "🏆 Fase concluída!";
+
+
+    modalText.textContent =
+        `Você terminou a fase ${currentLevel} com ${score} pontos!`;
+
+
+    if (
+        currentLevel < 5
+    ) {
+
+        nextButton.style.display =
+            "inline-block";
+
+    } else {
+
+        nextButton.style.display =
+            "none";
+
+    }
+
+
+    updateLevelMenu();
+
+
+    overlay.classList.add(
+        "show"
+    );
+
+}
+
+
+/* =====================================================
+   DERROTA
+===================================================== */
+
+function loseGame(reason) {
+
+    if (gameOver)
+        return;
+
+
+    /*
+       Nunca perde enquanto existe
+       um trio prestes a desaparecer.
+    */
+
+    if (
+        pendingTriples.size > 0
+    ) {
+
+        return;
+
+    }
+
+
+    gameOver = true;
+
+
+    clearInterval(timer);
+
+
+    modalTitle.textContent =
+        "😢 Fim de jogo";
+
+
+    modalText.textContent =
+        `${reason} Você fez ${score} pontos.`;
+
+
+    nextButton.style.display =
+        "none";
+
+
+    overlay.classList.add(
+        "show"
+    );
+
+}
+
+
+/* =====================================================
+   CRONÔMETRO
+===================================================== */
+
+function startTimer() {
+
+    timer =
+        setInterval(
+            () => {
+
+                if (gameOver)
+                    return;
+
+
+                timeLeft--;
+
+                updateTime();
+
+
+                if (
+                    timeLeft <= 0
+                ) {
+
+                    loseGame(
+                        "⏰ O tempo acabou!"
+                    );
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+/* =====================================================
+   TEMPO
+===================================================== */
+
+function updateTime() {
+
+    timeElement.textContent =
+        timeLeft;
+
+}
+
+
+/* =====================================================
+   PLACAR
+===================================================== */
+
+function updateScore() {
+
+    scoreElement.textContent =
+        score;
+
+
+    bestElement.textContent =
+        bestScore;
+
+}
+
+
+/* =====================================================
+   DESFAZER
+===================================================== */
+
+function undoMove() {
+
+    /*
+       Não permite desfazer durante
+       uma animação para não causar
+       conflito com o trio que ainda
+       vai desaparecer.
+    */
+
+    if (
+        gameOver ||
+        pendingTriples.size > 0 ||
+        history.length === 0
+    )
+        return;
+
+
+    const previous =
+        history.pop();
+
+
+    board =
+        previous.board.map(
+            t => ({
+                ...t
+            })
+        );
+
+
+    tray =
+        [...previous.tray];
+
+
+    score =
+        previous.score;
+
+
+    renderBoard();
+
+    renderTray();
+
+    updateScore();
+
+    updateUndoButton();
+
+
+    messageElement.textContent =
+        "↩️ Jogada desfeita!";
+
+}
+
+
+/* =====================================================
+   BOTÃO DESFAZER
+===================================================== */
+
+function updateUndoButton() {
+
+    undoBtn.disabled =
+        history.length === 0 ||
+        gameOver ||
+        pendingTriples.size > 0;
+
+}
+
+
+/* =====================================================
+   EMBARALHAR
+===================================================== */
+
+function shuffleBoard() {
+
+    if (
+        gameOver ||
+        pendingTriples.size > 0
+    )
+        return;
+
+
+    const active =
+        board.filter(
+            tile => tile.active
+        );
+
+
+    const fruitsToShuffle =
+        active.map(
+            tile => tile.fruit
+        );
+
+
+    shuffle(
+        fruitsToShuffle
+    );
+
+
+    let position = 0;
+
+
+    board.forEach(
+        tile => {
+
+            if (tile.active) {
+
+                tile.fruit =
+                    fruitsToShuffle[
+                        position
+                    ];
+
+                position++;
+
+            }
+
+        }
+    );
+
+
+    score =
+        Math.max(
+            0,
+            score - 5
+        );
+
+
+    updateScore();
+
+    renderBoard();
+
+
+    messageElement.textContent =
+        "🔀 Embaralhado! -5 pontos";
+
+}
+
+
+/* =====================================================
+   REINICIAR FASE
+===================================================== */
+
+function restartCurrentLevel() {
+
+    startLevel(
+        currentLevel
+    );
+
+}
+
+
+/* =====================================================
+   PRÓXIMA FASE
+===================================================== */
+
+function nextLevel() {
+
+    overlay.classList.remove(
+        "show"
+    );
+
+
+    if (
+        currentLevel < 5
+    ) {
+
+        startLevel(
+            currentLevel + 1
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ABRIR MENU
+===================================================== */
+
+function openMenu() {
+
+    clearInterval(timer);
+
+
+    gameOver = true;
+
+
+    pendingTriples.clear();
+
+
+    overlay.classList.remove(
+        "show"
+    );
+
+
+    menu.style.display =
+        "flex";
+
+
+    updateLevelMenu();
+
+}
+
+
+/* =====================================================
+   RESETAR PROGRESSO
+===================================================== */
+
+function resetProgress() {
+
+    const confirmReset =
+        confirm(
+            "Tem certeza que deseja bloquear novamente todas as fases?"
+        );
+
+
+    if (!confirmReset)
+        return;
+
+
+    unlockedLevel = 1;
+
+
+    localStorage.setItem(
+        "fruitTrioLevel",
+        1
+    );
+
+
+    updateLevelMenu();
+
+}
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+updateLevelMenu();
+
+startLevel(1);
+
+</script>
+
+</body>
+</html>
